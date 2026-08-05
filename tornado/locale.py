@@ -355,7 +355,7 @@ class Locale:
             date = date.replace(tzinfo=datetime.timezone.utc)
         now = datetime.datetime.now(datetime.timezone.utc)
         if date > now:
-            if relative and (date - now).seconds < 60:
+            if relative and (date - now).total_seconds() < 60:
                 # Due to click skew, things are some things slightly
                 # in the future. Round timestamps in the immediate
                 # future down to now in relative mode.
