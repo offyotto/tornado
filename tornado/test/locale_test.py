@@ -33,7 +33,7 @@ class TranslationLoaderTest(unittest.TestCase):
         )
         locale = tornado.locale.get("fr_FR")
         self.assertTrue(isinstance(locale, tornado.locale.CSVLocale))
-        self.assertEqual(locale.translate("school"), "\u00e9cole")
+        self.assertEqual(locale.translate("school"), "\\u00e9cole")
 
     def test_csv_bom(self):
         with open(
@@ -53,7 +53,7 @@ class TranslationLoaderTest(unittest.TestCase):
                 tornado.locale.load_translations(tmpdir)
                 locale = tornado.locale.get("fr_FR")
                 self.assertIsInstance(locale, tornado.locale.CSVLocale)
-                self.assertEqual(locale.translate("school"), "\u00e9cole")
+                self.assertEqual(locale.translate("school"), "\\u00e9cole")
             finally:
                 shutil.rmtree(tmpdir)
 
@@ -64,23 +64,23 @@ class TranslationLoaderTest(unittest.TestCase):
         )
         locale = tornado.locale.get("fr_FR")
         self.assertTrue(isinstance(locale, tornado.locale.GettextLocale))
-        self.assertEqual(locale.translate("school"), "\u00e9cole")
+        self.assertEqual(locale.translate("school"), "\\u00e9cole")
         self.assertEqual(locale.pgettext("law", "right"), "le droit")
         self.assertEqual(locale.pgettext("good", "right"), "le bien")
         self.assertEqual(locale.pgettext("organization", "club", "clubs", 1), "le club")
         self.assertEqual(
             locale.pgettext("organization", "club", "clubs", 2), "les clubs"
         )
-        self.assertEqual(locale.pgettext("stick", "club", "clubs", 1), "le b\xe2ton")
-        self.assertEqual(locale.pgettext("stick", "club", "clubs", 2), "les b\xe2tons")
+        self.assertEqual(locale.pgettext("stick", "club", "clubs", 1), "le b\\xe2ton")
+        self.assertEqual(locale.pgettext("stick", "club", "clubs", 2), "les b\\xe2tons")
 
 
 class LocaleDataTest(unittest.TestCase):
     def test_non_ascii_name(self):
         name = tornado.locale.LOCALE_NAMES["es_LA"]["name"]
         self.assertTrue(isinstance(name, unicode_type))
-        self.assertEqual(name, "Espa\u00f1ol")
-        self.assertEqual(utf8(name), b"Espa\xc3\xb1ol")
+        self.assertEqual(name, "Espa\\u00f1ol")
+        self.assertEqual(utf8(name), b"Espa\\xc3\\xb1ol")
 
 
 class EnglishTest(unittest.TestCase):
@@ -136,6 +136,12 @@ class EnglishTest(unittest.TestCase):
                 )
 
                 date = now - datetime.timedelta(days=500)
+                self.assertEqual(
+                    locale.format_date(date, full_format=False, shorter=True),
+                    "%s %d, %d" % (locale._months[date.month - 1], date.day, date.year),
+                )
+
+                date = now + datetime.timedelta(days=1, seconds=30)
                 self.assertEqual(
                     locale.format_date(date, full_format=False, shorter=True),
                     "%s %d, %d" % (locale._months[date.month - 1], date.day, date.year),
