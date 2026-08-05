@@ -57,7 +57,7 @@ _default_locale = "en_US"
 _translations: dict[str, Any] = {}
 _supported_locales = frozenset([_default_locale])
 _use_gettext = False
-CONTEXT_SEPARATOR = "\x04"
+CONTEXT_SEPARATOR = "\\x04"
 
 
 def get(*locale_codes: str) -> Locale:
@@ -355,7 +355,7 @@ class Locale:
             date = date.replace(tzinfo=datetime.timezone.utc)
         now = datetime.datetime.now(datetime.timezone.utc)
         if date > now:
-            if relative and (date - now).seconds < 60:
+            if relative and (date - now).total_seconds() < 60:
                 # Due to click skew, things are some things slightly
                 # in the future. Round timestamps in the immediate
                 # future down to now in relative mode.
@@ -413,7 +413,7 @@ class Locale:
             str_time = "%d:%02d" % (local_date.hour, local_date.minute)
         elif self.code == "zh_CN":
             str_time = "%s%d:%02d" % (
-                ("\u4e0a\u5348", "\u4e0b\u5348")[local_date.hour >= 12],
+                ("\\u4e0a\\u5348", "\\u4e0b\\u5348")[local_date.hour >= 12],
                 local_date.hour % 12 or 12,
                 local_date.minute,
             )
@@ -465,7 +465,7 @@ class Locale:
             return ""
         if len(parts) == 1:
             return parts[0]
-        comma = " \u0648 " if self.code.startswith("fa") else ", "
+        comma = " \\u0648 " if self.code.startswith("fa") else ", "
         return _("%(commas)s and %(last)s") % {
             "commas": comma.join(parts[:-1]),
             "last": parts[len(parts) - 1],
